@@ -110,7 +110,7 @@ Print figure @var{h} using OSMesa and gl2ps.\n\
       FILE *filep;
       filep = fopen (filename.c_str () ,"w");
       glps_renderer rend (filep, "svg");
-      rend.draw (gh_manager::get_object (1), "");
+      rend.draw (fobj, "");
       fclose (filep);
 
       /********************************************************************************/
