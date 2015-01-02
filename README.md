@@ -7,14 +7,18 @@ I build this project on Debian GNU/Linux 8.0 (jessie) thus the instructions belo
 
 ### Install dependencies with apt-get / aptitude
 
+```
 sudo apt-get update
 sudo apt-get install libosmesa6-dev
+```
 
 ### Build gl-print and run:
 
+```
 ./bootstrap
 ./configure
 make check
+```
 
 have a look at check1.svg!
 
@@ -23,12 +27,11 @@ have a look at check1.svg!
 usefull link with speed comparison:
 http://www.paraview.org/Wiki/ParaView/ParaView_And_Mesa_3D
 
+```
 wget -nc ftp://ftp.freedesktop.org/pub/mesa/current/MesaLib-10.2.2.tar.bz2
 tar xjf MesaLib-10.2.2.tar.bz2
 cd Mesa-10.2.2/
 
-#make distclean # if in an existing build
- 
 autoreconf -fi
  
 ./configure \
@@ -48,17 +51,19 @@ autoreconf -fi
     --prefix=/usr/local/mesa/10.2.2/classic
  
 make -j4
+```
 
 perhaps "make check" if you want
 
-sudo make install
+    sudo make install
 
 ### Mesa Demos
 
 I found the Mesa demos helpful:
 
+```
 git clone git://anongit.freedesktop.org/mesa/demos
 ...
 export PKG_CONFIG_PATH=/usr/local/mesa/10.2.2/classic/lib/pkgconfig/
 ./configure --enable-osmesa
-
+```
