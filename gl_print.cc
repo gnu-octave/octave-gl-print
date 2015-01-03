@@ -15,6 +15,7 @@
 
 #include <octave/oct.h>
 #include <sys/types.h>
+#include "sysdep.h"
 #include <string>
 #include "GL/osmesa.h"
 
@@ -32,8 +33,10 @@
 
 DEFUN_DLD(gl_print, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} gl_print (@var{h}, @var{filename}, @var{term})\n\
+@deftypefn {Loadable Function} gl_print (@var{h}, @var{cmd}, @var{term})\n\
 Print figure @var{h} using OSMesa and gl2ps.\n\
+\n\
+@var{cmd} might be a pipe to ghostscript or simply @qcode{cat > filename}\n\
 \n\
 Valid options for @var{term}, which can be concatenated in one string, are:\n\
 \n\
@@ -48,6 +51,7 @@ Don't render text\n\
 @end deftypefn")
 {
   octave_value_list retval;
+#ifdef HAVE_GL2PS_H
   int nargin = args.length ();
 
   if (nargin != 3)
@@ -56,10 +60,18 @@ Don't render text\n\
       return retval;
     }
 
+  if (! (args(1).is_string () && args(2).is_string ()))
+    {
+      error ("CMD and TERM has to be strings");
+      return retval;
+    }
+
   int h = args(0).double_value ();
   graphics_object fobj = gh_manager::get_object (h);
   if (fobj &&  fobj.isa ("figure"))
     {
+
+
       figure::properties& fp =
         dynamic_cast<figure::properties&> (fobj.get_properties ());
 
@@ -69,23 +81,12 @@ Don't render text\n\
       int Width = bb(2);
       int Height = bb(3);
 
-      std::string filename = args(1).string_value ();
-      if (error_state)
-        {
-          error ("Filename has to be a string");
-          return retval;
-        }
-
+      std::string cmd  = args(1).string_value ();
       std::string term = args(2).string_value ();
-      if (error_state)
-        {
-          error ("Term has to be a string");
-          return retval;
-        }
 
       octave_stdout << "Width=" << Width
                     << " Height=" << Height
-                    << " Filename=" << filename
+                    << " Cmd=" << cmd
                     << " Term=" << term << std::endl;
 
       OSMesaContext ctx;
@@ -126,7 +127,7 @@ Don't render text\n\
       printf ("Depth=%d Stencil=%d Accum=%d\n", z, s, a);
 
       FILE *filep;
-      filep = fopen (filename.c_str (), "w");
+      filep = octave_popen (cmd.c_str (), "w");
       if (filep)
         {
           // check if the figure is visible
@@ -136,8 +137,8 @@ Don't render text\n\
             fp.set_visible ("off");
 
           glps_renderer rend (filep, term);
-          rend.draw (fobj, "");
-          fclose (filep);
+          rend.draw (fobj, cmd);
+          octave_pclose (filep);
 
           // restore figure visibility
           // If the figure previously was shown with FLTK, this causes
@@ -151,7 +152,7 @@ Don't render text\n\
             fp.set_visible ("on");
         }
       else
-        error ("Couldn't create file \"%s\"", filename.c_str ());
+        error ("Couldn't create pipe to \"%s\"", cmd.c_str ());
 
       // free the image buffer
       free (buffer);
@@ -162,5 +163,8 @@ Don't render text\n\
   else
     error ("H has to be a valid figure handle");
 
+#else
+  error ("Octave has been compiled without gl2ps. gl_print won't work without gl2ps.");
+#endif
   return retval;
 }
