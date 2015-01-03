@@ -14,7 +14,7 @@ debug : all
 	$(MKOCTFILE) $(MKOCTFLAGS) -I/usr/include/freetype2 $^ @LIBS@ -o $@
 
 check: $(OCT)
-	octave -q --eval 'sombrero; gl_print (gcf(), "check1.svg")'
+	octave -q --eval 'sombrero; gl_print (gcf(), "check1.svg", "svg")'
 
 clean:
 	rm -f *.oct *.o
