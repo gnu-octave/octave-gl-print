@@ -129,9 +129,26 @@ Don't render text\n\
       filep = fopen (filename.c_str (), "w");
       if (filep)
         {
+          // check if the figure is visible
+          bool v = fp.is_visible ();
+
+          if (v)
+            fp.set_visible ("off");
+
           glps_renderer rend (filep, term);
           rend.draw (fobj, "");
           fclose (filep);
+
+          // restore figure visibility
+          // If the figure previously was shown with FLTK, this causes
+          // an update with base_properties::ID_VISIBLE
+          // -> do_toggle_window_visibility
+          // -> show_canvas
+          // -> canvas.make_current ()
+          // which selects the FLTK OpenGL context again.
+          // This is important because OSMesaMakeCurrent above changed the current context.
+          if (v)
+            fp.set_visible ("on");
         }
       else
         error ("Couldn't create file \"%s\"", filename.c_str ());
