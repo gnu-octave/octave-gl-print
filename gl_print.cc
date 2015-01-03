@@ -52,7 +52,7 @@ Don't render text\n\
 
   if (nargin != 3)
     {
-      print_usage();
+      print_usage ();
       return retval;
     }
 
@@ -91,9 +91,9 @@ Don't render text\n\
       OSMesaContext ctx;
       void *buffer;
 
-      /* Create an RGBA-mode context */
+      // Create an RGBA-mode context
       #if OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 305
-      /* specify Z, stencil, accum sizes */
+      // specify Z, stencil, accum sizes
       ctx = OSMesaCreateContextExt( OSMESA_RGBA, 16, 0, 0, NULL );
       #else
       ctx = OSMesaCreateContext( OSMESA_RGBA, NULL );
@@ -105,28 +105,28 @@ Don't render text\n\
         }
 
       /* Allocate the image buffer */
-      buffer = malloc( Width * Height * 4 * sizeof(GLubyte) );
+      buffer = malloc (Width * Height * 4 * sizeof (GLubyte));
       if (! buffer)
         {
-          printf("Alloc image buffer failed!\n");
+          printf ("Alloc image buffer failed!\n");
           return retval;
         }
 
       /* Bind the buffer to the context and make it current */
-      if (! OSMesaMakeCurrent( ctx, buffer, GL_UNSIGNED_BYTE, Width, Height ))
+      if (! OSMesaMakeCurrent (ctx, buffer, GL_UNSIGNED_BYTE, Width, Height))
         {
-          printf("OSMesaMakeCurrent failed!\n");
+          printf ("OSMesaMakeCurrent failed!\n");
           return retval;
         }
 
       int z, s, a;
-      glGetIntegerv(GL_DEPTH_BITS, &z);
-      glGetIntegerv(GL_STENCIL_BITS, &s);
-      glGetIntegerv(GL_ACCUM_RED_BITS, &a);
-      printf("Depth=%d Stencil=%d Accum=%d\n", z, s, a);
+      glGetIntegerv (GL_DEPTH_BITS, &z);
+      glGetIntegerv (GL_STENCIL_BITS, &s);
+      glGetIntegerv (GL_ACCUM_RED_BITS, &a);
+      printf ("Depth=%d Stencil=%d Accum=%d\n", z, s, a);
 
       FILE *filep;
-      filep = fopen (filename.c_str () ,"w");
+      filep = fopen (filename.c_str (), "w");
       if (filep)
         {
           glps_renderer rend (filep, term);
@@ -136,11 +136,11 @@ Don't render text\n\
       else
         error ("Couldn't create file \"%s\"", filename.c_str ());
 
-      /* free the image buffer */
-      free( buffer );
+      // free the image buffer
+      free (buffer);
 
-      /* destroy the context */
-      OSMesaDestroyContext( ctx );
+      // destroy the context
+      OSMesaDestroyContext ( ctx );
     }
   else
     error ("H has to be a valid figure handle");
