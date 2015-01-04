@@ -105,7 +105,7 @@ Don't render text\n\
           return retval;
         }
 
-      /* Allocate the image buffer */
+      // Allocate the image buffer
       buffer = malloc (Width * Height * 4 * sizeof (GLubyte));
       if (! buffer)
         {
@@ -113,7 +113,7 @@ Don't render text\n\
           return retval;
         }
 
-      /* Bind the buffer to the context and make it current */
+      // Bind the buffer to the context and make it current
       if (! OSMesaMakeCurrent (ctx, buffer, GL_UNSIGNED_BYTE, Width, Height))
         {
           printf ("OSMesaMakeCurrent failed!\n");
@@ -133,28 +133,34 @@ Don't render text\n\
           // check if the figure is visible
           bool v = fp.is_visible ();
 
-          if (v)
-            fp.set_visible ("off");
+          //if (v)
+            //fp.set_visible ("off");
 
           glps_renderer rend (filep, term);
 
           //glMatrixMode (GL_PROJECTION);
           //glLoadIdentity ();
-          rend.set_viewport (Width, Height);
+          //rend.set_viewport (Width, Height);
 
           rend.draw (fobj, cmd);
           octave_pclose (filep);
 
-          // restore figure visibility
+          // HACK for FLTK:
+          // toggle figure visibility
           // If the figure previously was shown with FLTK, this causes
-          // an update with base_properties::ID_VISIBLE
+          // an update with ID = base_properties::ID_VISIBLE
+          // which calls
           // -> do_toggle_window_visibility
           // -> show_canvas
           // -> canvas.make_current ()
           // which selects the FLTK OpenGL context again.
           // This is important because OSMesaMakeCurrent above changed the current context.
           if (v)
-            fp.set_visible ("on");
+            {
+              fp.set_visible ("off");
+              fp.set_visible ("on");
+              //rend.set_viewport (Width, Height);
+            }
         }
       else
         error ("Couldn't create pipe to \"%s\"", cmd.c_str ());
