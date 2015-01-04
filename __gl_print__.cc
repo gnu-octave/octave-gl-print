@@ -31,9 +31,9 @@
 #include "gl2ps-renderer.h"
 #include "graphics.h"
 
-DEFUN_DLD(gl_print, args, nargout,
+DEFUN_DLD(__gl_print__, args, nargout,
           "-*- texinfo -*-\n\
-@deftypefn {Loadable Function} gl_print (@var{h}, @var{cmd}, @var{term})\n\
+@deftypefn {Loadable Function} __gl_print__ (@var{h}, @var{cmd}, @var{term})\n\
 Print figure @var{h} using OSMesa and gl2ps.\n\
 \n\
 @var{cmd} might be a pipe to ghostscript or simply @qcode{cat > filename}\n\
@@ -137,6 +137,11 @@ Don't render text\n\
             fp.set_visible ("off");
 
           glps_renderer rend (filep, term);
+
+          //glMatrixMode (GL_PROJECTION);
+          //glLoadIdentity ();
+          rend.set_viewport (Width, Height);
+
           rend.draw (fobj, cmd);
           octave_pclose (filep);
 

@@ -1,6 +1,6 @@
 .PHONY: all check clean distclean realclean
 
-OCT := gl_print.oct
+OCT := __gl_print__.oct
 
 MKOCTFILE  ?= mkoctfile
 MKOCTFLAGS ?= -Wall -v
@@ -14,11 +14,13 @@ debug : all
 	$(MKOCTFILE) $(MKOCTFLAGS) -I/usr/include/freetype2 $^ @LIBS@ -o $@
 
 check: $(OCT)
-	octave -q --eval 'sombrero; gl_print (gcf(), "cat > check1.svg", "svg")'
-	octave -q --eval 'peaks; gl_print (gcf(), "/usr/bin/gs -dQUIET -dNOPAUSE -dBATCH -dSAFER -sDEVICE=png16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r150x150 -dEPSCrop -sOutputFile=\"check2.png\" -", "eps")'
+	octave -q --eval 'sombrero; gl_print ("sombrero.svg")'
+	octave -q --eval 'sombrero; gl_print ("sombrero.png")'
+	octave -q --eval 'plot (sin (0:0.1:2*pi)); gl_print (gcf, "sin_simple.svg", true)'
+	octave -q --eval 'plot (sin (0:0.1:2*pi)); gl_print (gcf, "sin_simple.png", true)'
 
 clean:
-	rm -f *.oct *.o *.svg *.png
+	rm -f *.oct *.o *.svg *.png *.eps
 	rm -f octave-core octave-workspace
 
 distclean: clean
