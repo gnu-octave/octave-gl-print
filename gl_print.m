@@ -17,13 +17,13 @@
 ## @deftypefn  {Function File} {} gl_print (@var{filename})
 ## @deftypefnx {Function File} {} gl_print (@var{h}, @var{filename})
 ## @deftypefnx {Function File} {} gl_print (@var{h}, @var{filename}, @var{simple_sort})
-## Save a plot to a file using OSMesa, gl2ps and ghostscript for bitmap output.
+## Save a plot to a file using OSMesa.
+##
+## Vector formats like SVG, PDF, PS and so on are created with gl2ps.
+## Bitmap formats like PNG, JPG, BMP ... do not use gl2ps.
 ##
 ## If @var{simple_sort} is true, GL2PS_SIMPLE_SORT is used instead of
 ## GL2PS_BSP_SORT as Z-depth sorting algorithm.
-##
-## Both output formatted for printing (PDF and PostScript), and many bitmapped
-## and vector image formats are supported.
 ##
 ## @var{filename} defines the name of the output file.  If the
 ## file name has no suffix, one is inferred from the specified
@@ -57,25 +57,16 @@ function gl_print (varargin)
 
   [~, ~, EXT] = fileparts (filename);
 
-  ## note: PPM bypasses gl2ps and can thus used without gl2ps compiled in
-  direct_list = {".eps", ".pdf", ".ps", ".svg", ".pgf", ".tex", ".ppm"};
-  if (any (strcmpi (direct_list, EXT)))
-    cmd = strcat ("cat > ", filename);
+  gl2ps_list = {".eps", ".pdf", ".ps", ".svg", ".pgf", ".tex"};
+  if (any (strcmpi (gl2ps_list, EXT)))
     term = EXT(2:end);
-  elseif (strcmpi (".png", EXT))
-    cmd = sprintf ("gs -dQUIET -dNOPAUSE -dBATCH -dSAFER -sDEVICE=png16m -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r150x150 -dEPSCrop -sOutputFile=\"%s\" -", filename);
-    term = "eps";
-  elseif (strcmpi (".jpg", EXT))
-    cmd = sprintf ("gs -dQUIET -dNOPAUSE -dBATCH -dSAFER -sDEVICE=jpeg -dTextAlphaBits=4 -dGraphicsAlphaBits=4 -r150x150 -dEPSCrop -sOutputFile=\"%s\" -", filename);
-    term = "eps";
+    if (simple_sort)
+      term = strcat (term, "is2D");
+    endif
+    __gl_print__ (h, filename, term);
   else
-    error ("Unknown extension \"%s\"", EXT);
+    img = __gl_print__ (h);
+    imwrite (img, filename);
   endif
-
-  if (simple_sort)
-    term = strcat (term, "is2D");
-  endif
-
-  __gl_print__ (h, cmd, term);
 
 endfunction
