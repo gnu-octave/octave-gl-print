@@ -17,7 +17,7 @@ check: $(OCT)
 	octave -q -f run_tests.m
 
 clean:
-	rm -f *.oct *.o *.svg *.png *.eps
+	rm -f *.oct *.o *.svg *.png *.eps *.ppm *.ppm.gz
 	rm -f octave-core octave-workspace
 
 distclean: clean

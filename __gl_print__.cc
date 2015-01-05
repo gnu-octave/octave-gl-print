@@ -12,6 +12,9 @@
 //
 // You should have received a copy of the GNU General Public License along with
 // this program; if not, see <http://www.gnu.org/licenses/>.
+//
+// This code is based on Brian Pauls' src/osdemos/osdemo.c
+// from git://anongit.freedesktop.org/mesa/demos
 
 #include <octave/oct.h>
 #include <sys/types.h>
@@ -31,27 +34,59 @@
 #include "gl2ps-renderer.h"
 #include "graphics.h"
 
+static void
+write_ascii_ppm (FILE* f, const GLubyte *buffer, int width, int height)
+{
+  if (f)
+    {
+      int i, x, y;
+      const GLubyte *ptr = buffer;
+
+      int counter = 0;
+      fprintf(f,"P3\n");
+      fprintf(f,"# ascii ppm file created by __gl_print__.cc\n");
+      fprintf(f,"%i %i\n", width, height);
+      fprintf(f,"255\n");
+      for (y=height-1; y>=0; y--)
+        {
+          for (x=0; x<width; x++)
+            {
+               i = (y*width + x) * 4;
+               fprintf(f, " %3d %3d %3d", ptr[i], ptr[i+1], ptr[i+2]);
+               counter++;
+               if (counter % 5 == 0)
+                  fprintf(f, "\n");
+            }
+        }
+    }
+}
+
 DEFUN_DLD(__gl_print__, args, nargout,
           "-*- texinfo -*-\n\
 @deftypefn {Loadable Function} __gl_print__ (@var{h}, @var{cmd}, @var{term})\n\
 Print figure @var{h} using OSMesa and gl2ps.\n\
+If @var{term} == @qcode{ppm} gl2ps is bypassed and the OSMesa buffer\n\
+directly written to @var{cmd}\n\
 \n\
 @var{cmd} might be a pipe to ghostscript or simply @qcode{cat > filename}\n\
 \n\
 Valid options for @var{term}, which can be concatenated in one string, are:\n\
 \n\
 @table @asis\n\
-@item @qcode{eps}, @qcode{pdf}, @qcode{ps}, @qcode{svg}, @qcode{pgf}, @qcode{tex}\n\
-Select output format\n\
+@item @qcode{eps}, @qcode{pdf}, @qcode{ps}, @qcode{svg}, @qcode{pgf}, @qcode{tex}, @qcode{ppm}\n\
+Select output format.\n\
 @item @qcode{is2D}\n\
-Use GL2PS_SIMPLE_SORT instead of GL2PS_BSP_SORT as Z-depth sorting algorithm\n\
+Use GL2PS_SIMPLE_SORT instead of GL2PS_BSP_SORT as Z-depth sorting algorithm.\n\
 @item @qcode{notext}\n\
-Don't render text\n\
+Don't render text.\n\
 @end table\n\
+\n\
+@qcode{is2D} and @qcode{notext} together with @qcode{ppm} do nothing\n\
+because gl2ps is bypassed in this case.\n\
 @end deftypefn")
 {
   octave_value_list retval;
-#ifdef HAVE_GL2PS_H
+
   int nargin = args.length ();
 
   if (nargin != 3)
@@ -133,17 +168,23 @@ Don't render text\n\
           // check if the figure is visible
           bool v = fp.is_visible ();
 
-          //if (v)
-            //fp.set_visible ("off");
+          // print to PPM and bypass gl2ps?
+          if (term.find ("ppm") != std::string::npos)
+            {
+              opengl_renderer rend;
+              rend.draw (fobj);
+              write_ascii_ppm (filep, (const GLubyte*)buffer, Width, Height);
+            }
+          else
+            {
 
-          glps_renderer rend (filep, term);
-
-          //glMatrixMode (GL_PROJECTION);
-          //glLoadIdentity ();
-          //rend.set_viewport (Width, Height);
-
-          rend.draw (fobj, cmd);
-          octave_pclose (filep);
+#ifdef HAVE_GL2PS_H
+              glps_renderer rend (filep, term);
+              rend.draw (fobj, cmd);
+#else
+              error ("Octave has been compiled without gl2ps. TERM = \"%s\" won't work without gl2ps.", term.c_str ());
+#endif
+            }
 
           // HACK for FLTK:
           // toggle figure visibility
@@ -161,6 +202,8 @@ Don't render text\n\
               fp.set_visible ("on");
               //rend.set_viewport (Width, Height);
             }
+
+          octave_pclose (filep);
         }
       else
         error ("Couldn't create pipe to \"%s\"", cmd.c_str ());
@@ -173,9 +216,6 @@ Don't render text\n\
     }
   else
     error ("H has to be a valid figure handle");
-
-#else
-  error ("Octave has been compiled without gl2ps. gl_print won't work without gl2ps.");
-#endif
   return retval;
 }
+

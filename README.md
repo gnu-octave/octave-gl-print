@@ -33,7 +33,7 @@ tar xjf MesaLib-10.2.2.tar.bz2
 cd Mesa-10.2.2/
 
 autoreconf -fi
- 
+
 ./configure \
     CXXFLAGS="-O2 -g -DDEFAULT_SOFTWARE_DEPTH_BITS=31" \
     CFLAGS="-O2 -g -DDEFAULT_SOFTWARE_DEPTH_BITS=31" \
@@ -49,7 +49,7 @@ autoreconf -fi
     --enable-osmesa \
     --enable-gallium-llvm=no \
     --prefix=/usr/local/mesa/10.2.2/classic
- 
+
 make -j4
 ```
 
@@ -59,11 +59,14 @@ perhaps "make check" if you want
 
 ### Mesa Demos
 
-I found the Mesa demos helpful:
+I found the Mesa demos (especially the OSMesa demos in ./src/osdemos/) helpful:
 
 ```
-git clone git://anongit.freedesktop.org/mesa/demos
-...
-export PKG_CONFIG_PATH=/usr/local/mesa/10.2.2/classic/lib/pkgconfig/
+git clone git://anongit.freedesktop.org/mesa/demos mesa_demos
+cd mesa_demos
+./autogen.sh
+
+[if you've built from source perhaps
+"export PKG_CONFIG_PATH=/usr/local/mesa/10.2.2/classic/lib/pkgconfig/"]
+
 ./configure --enable-osmesa
-```

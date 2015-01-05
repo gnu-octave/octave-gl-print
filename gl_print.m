@@ -57,7 +57,8 @@ function gl_print (varargin)
 
   [~, ~, EXT] = fileparts (filename);
 
-  direct_list = {".eps", ".pdf", ".ps", ".svg", ".pgf", ".tex"};
+  ## note: PPM bypasses gl2ps and can thus used without gl2ps compiled in
+  direct_list = {".eps", ".pdf", ".ps", ".svg", ".pgf", ".tex", ".ppm"};
   if (any (strcmpi (direct_list, EXT)))
     cmd = strcat ("cat > ", filename);
     term = EXT(2:end);
