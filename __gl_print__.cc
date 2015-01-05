@@ -22,14 +22,6 @@
 #include <string>
 #include "GL/osmesa.h"
 
-#ifdef __APPLE__
-#  include <OpenGL/gl.h>
-#  include <OpenGL/glu.h>
-#else
-#  include <GL/gl.h>
-#  include <GL/glu.h>
-#endif
-
 #include "gl-render.h"
 #include "gl2ps-renderer.h"
 #include "graphics.h"
