@@ -154,6 +154,12 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
           glps_renderer rend (filep, term);
           rend.draw (fobj, "");
 
+          // This is very important!!!
+          // Make sure buffered commands are finished!!!
+          // FIXME: glps_renderer::draw already has (on default branch) a glFlush ();
+          // before using gl2ps but this should be glFinish ();
+          glFinish();
+
           fclose (filep);
         }
       else
@@ -165,6 +171,11 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
       // return RGB image
       opengl_renderer rend;
       rend.draw (fobj);
+
+      // This is very important!!!
+      // Make sure buffered commands are finished!!!
+      // FIXME: this should go at the end of opengl_renderer::draw_figure
+      glFinish();
 
       dim_vector dv (4, Width, Height);
 
@@ -218,4 +229,45 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
 
   return retval;
 }
+
+/*
+%!test
+%! h = figure ("visible", "off");
+%! fn = tempname ();
+%! sombrero ();
+%! __gl_print__ (h, fn, "svg");
+%! assert (stat (fn).size, 2692270, -0.1);
+%! unlink (fn);
+%! img = __gl_print__ (h);
+%! assert (size (img), [get(h, "position")([4, 3]), 3])
+%! ## Use pixel sum per RGB channel as fingerprint
+%! img_fp = squeeze (sum (sum (img), 2));
+%! assert (img_fp, [52942515; 54167797; 56158178], -0.05);
+
+%!test
+%! h = figure ("visible", "off");
+%! fn = tempname ();
+%! plot (sin (0:0.1:2*pi));
+%! __gl_print__ (h, fn, "svgis2d");
+%! assert (stat (fn).size, 7438, -0.05);
+%! unlink (fn);
+%! img = __gl_print__ (h);
+%! assert (size (img), [get(h, "position")([4, 3]), 3])
+%! ## Use pixel sum per RGB channel as fingerprint
+%! img_fp = squeeze (sum (sum (img), 2));
+%! assert (img_fp, [59281711; 59281711; 59482179], -0.05);
+
+%!test
+%! h = figure ("visible", "on");
+%! fn = tempname ();
+%! plot (sin (0:0.1:2*pi));
+%! __gl_print__ (h, fn, "svgis2d");
+%! assert (stat (fn).size, 7438, -0.05);
+%! unlink (fn);
+%! img = __gl_print__ (h);
+%! assert (size (img), [get(h, "position")([4, 3]), 3])
+%! ## Use pixel sum per RGB channel as fingerprint
+%! img_fp = squeeze (sum (sum (img), 2));
+%! assert (img_fp, [59281711; 59281711; 59482179], -0.05);
+*/
 

@@ -14,10 +14,10 @@ debug : all
 	$(MKOCTFILE) $(MKOCTFLAGS) -I/usr/include/freetype2 $^ @LIBS@ -o $@
 
 check: $(OCT)
-	octave -q -f run_tests.m
+	octave -q -f --eval "test __gl_print__"
 
 clean:
-	rm -f *.oct *.o *.svg *.png *.eps *.ppm *.ppm.gz
+	rm -f *.oct *.o
 	rm -f octave-core octave-workspace
 
 distclean: clean
