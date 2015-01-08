@@ -49,6 +49,8 @@ function gl_print (varargin)
     h = varargin{1};
     filename = varargin{2};
     simple_sort = varargin{3};
+  else
+    print_usage ();
   endif
 
   if (! isfigure (h) || isempty (h))
