@@ -93,6 +93,8 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
   OSMesaContext ctx;
   void *buffer;
 
+  std::cout << "OSMESA_VERSION = " << (OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION)/100.0 << std::endl;
+
   // Create an RGBA-mode context
   #if OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 305
   // specify Z, stencil, accum sizes
