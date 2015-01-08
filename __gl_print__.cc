@@ -17,9 +17,6 @@
 // from git://anongit.freedesktop.org/mesa/demos
 
 #include <octave/oct.h>
-#include <sys/types.h>
-#include "sysdep.h"
-#include <string>
 #include "GL/osmesa.h"
 
 #include "gl-render.h"
@@ -68,7 +65,7 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
         }
 
       #ifndef HAVE_GL2PS_H
-        error ("Octave has been compiled without gl2ps");
+        error ("__gl_print__: Octave has been compiled without gl2ps");
         return retval;
       #endif
     }
@@ -77,7 +74,7 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
   graphics_object fobj = gh_manager::get_object (h);
   if (! (fobj &&  fobj.isa ("figure")))
     {
-      error ("H has to be a valid figure handle");
+      error ("__gl_print__: H has to be a valid figure handle");
       return retval;
     }
 
@@ -104,7 +101,7 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
   #endif
   if (! ctx)
     {
-      printf("OSMesaCreateContext failed!\n");
+      error ("__gl_print__: OSMesaCreateContext failed!\n");
       return retval;
     }
 
@@ -112,14 +109,14 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
   buffer = malloc (Width * Height * 4 * sizeof (GLubyte));
   if (! buffer)
     {
-      printf ("Alloc image buffer failed!\n");
+      error ("__gl_print__: Alloc image buffer failed!\n");
       return retval;
     }
 
   // Bind the buffer to the context and make it current
   if (! OSMesaMakeCurrent (ctx, buffer, GL_UNSIGNED_BYTE, Width, Height))
     {
-      printf ("OSMesaMakeCurrent failed!\n");
+      error ("__gl_print__: OSMesaMakeCurrent failed!\n");
       return retval;
     }
 
@@ -127,7 +124,7 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
   glGetIntegerv (GL_DEPTH_BITS, &z);
   glGetIntegerv (GL_STENCIL_BITS, &s);
   glGetIntegerv (GL_ACCUM_RED_BITS, &a);
-  printf ("Depth=%d Stencil=%d Accum=%d\n", z, s, a);
+  std::cout << "GL_DEPTH_BITS=" << z << " GL_STENCIL_BITS=" << s << "  GL_ACCUM_RED_BITS=" << a << std::cout;
 
   // check if the figure is visible
   bool v = fp.is_visible ();
@@ -153,7 +150,7 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
           fclose (filep);
         }
       else
-        error ("Couldn't create file \"%s\"", filename.c_str ());
+        error ("__gl_print__: Couldn't create file \"%s\"", filename.c_str ());
 
     }
   else
