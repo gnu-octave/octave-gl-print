@@ -1,31 +1,35 @@
 octave-gl-print
 ===============
 
-Offscreen rendering print using OSMesa and gl2ps
+Offscreen rendering print using OSMesa.
+gl2ps is used for vector formats EPS, PS, PDF, SVG, PGF and TEX.
 
-I build this project on Debian GNU/Linux 8.0 (jessie) thus the instructions below may differ for your platform.
+## Dependencies
 
-### Install dependencies with apt-get / aptitude
+The minimum required version for OSMesa is 9.0.
+
+OSMesa < 9.0 shows a strage bug where the return values of
+```
+glGetIntegerv (GL_DEPTH_BITS, &z);
+glGetIntegerv (GL_STENCIL_BITS, &s);
+glGetIntegerv (GL_ACCUM_RED_BITS, &a);
+```
+return arbitrary values.
+
+### Install OSMesa via apt-get / aptitude
+
+tested with
+- Debian GNU/Linux 8.0 (jessie)
+- Ubuntu 14.04 (trusty)
 
 ```
 sudo apt-get update
 sudo apt-get install libosmesa6-dev
 ```
 
-### Build gl-print and run:
-
-```
-./bootstrap
-./configure
-make check
-```
-
-have a look at check1.svg!
-
 ### Build OSMesa from source
 
-usefull link with speed comparison:
-http://www.paraview.org/Wiki/ParaView/ParaView_And_Mesa_3D
+Needed for Debian wheezy which shipps OSMesa 8.0.5.
 
 ```
 wget -nc ftp://ftp.freedesktop.org/pub/mesa/current/MesaLib-10.2.2.tar.bz2
@@ -53,9 +57,18 @@ autoreconf -fi
 make -j4
 ```
 
-perhaps "make check" if you want
+```
+make check    #optional
+sudo make install
+```
 
-    sudo make install
+## Build gl-print and run:
+
+```
+./bootstrap
+./configure
+make check
+```
 
 ### Mesa Demos
 
@@ -70,3 +83,6 @@ cd mesa_demos
 "export PKG_CONFIG_PATH=/usr/local/mesa/10.2.2/classic/lib/pkgconfig/"]
 
 ./configure --enable-osmesa
+
+### Links
+- Build instruction for OSMesa and benchmarks: http://www.paraview.org/Wiki/ParaView/ParaView_And_Mesa_3D

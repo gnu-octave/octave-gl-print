@@ -124,7 +124,14 @@ The second method doesn't use gl2ps and returns a RGB image in @var{img} instead
   glGetIntegerv (GL_DEPTH_BITS, &z);
   glGetIntegerv (GL_STENCIL_BITS, &s);
   glGetIntegerv (GL_ACCUM_RED_BITS, &a);
-  std::cout << "GL_DEPTH_BITS=" << z << " GL_STENCIL_BITS=" << s << "  GL_ACCUM_RED_BITS=" << a << std::cout;
+  //std::cout << "GL_DEPTH_BITS=" << z << " GL_STENCIL_BITS=" << s << " GL_ACCUM_RED_BITS=" << a << std::cout;
+
+  // test a bug in OSMesa with version < 9.0
+  // Unfortunately OSMESA_MAJOR_VERSION and OSMESA_MINOR_VERSION weren't
+  // updated between many releases and can't be used for detection therefore.
+  // (Version 8.0 until 9.1.4 all return MAJOR 6, MINOR 5)
+  if ((z != 16) || (s != 0))
+    warning ("Depth and Stencil doesn't match, are you sure you use OSMesa >= 9.0?");
 
   // check if the figure is visible
   bool v = fp.is_visible ();
