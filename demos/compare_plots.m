@@ -2,6 +2,7 @@
 ## graphics_toolkit gnuplot and gl_print using OSMesa
 
 close all
+addpath ( canonicalize_file_name ("../"));
 graphics_toolkit fltk
 sombrero
 tic
